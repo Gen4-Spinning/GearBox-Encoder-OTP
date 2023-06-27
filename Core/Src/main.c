@@ -142,7 +142,22 @@ int main(void)
   diagRegister.raw = AS5047_readRegister(DIAGAGC_REG,0);
   zposLRegister.raw = AS5047_readRegister(ZPOSL_REG,0);
   zposMRegister.raw = AS5047_readRegister(ZPOSM_REG,0);
+  Settings2 settings2;
+  Zposl zposl ;
+  Zposm zposm ;
 
+  /************INSTRUCTIONS*******************
+   * First time you run , see the settings1Reg Value. It will be 32769, and that is
+   * the unprogrammed value of the chip.
+   * Then set prog_permanently == 1, keep watching the variables and break out
+   * from stage to stage using the breakout variable. Once prog_permanently becomes zero,
+   * the OTP is done. Then remove the power and plug it back. when you now see settings1Reg
+   * value it should be something else, in this case 237
+   */
+
+
+  //Get Settings 1 value
+  /*
   Settings1 settings1;
   settings1.values.factorySetting = 1;
   settings1.values.not_used = 0;
@@ -155,37 +170,7 @@ int main(void)
 
   AS5047_writeRegister(SETTINGS1_REG, settings1.raw);
   settings1Reg2.raw = AS5047_readRegister(SETTINGS1_REG,0);
-
-  Settings2 settings2;
-  settings2.values.abires = 0; // with abibin sets the resolution
-  settings2.values.uvwpp = 0; // 5 pole pairs - 0b100
-  settings2.values.hys = 1;
-  AS5047_writeRegister(SETTINGS2_REG,settings2.raw);
-  settings2Reg2.raw = AS5047_readRegister(SETTINGS2_REG,0);
-
-  Zposl zposl ;
-  zposl.values.compHerrorEn = 1;
-  zposl.values.compLerrorEn = 1;
-  zposl.values.zposl = 0;
-  AS5047_writeRegister(ZPOSL_REG,zposl.raw);
-  zposLRegister2.raw = AS5047_readRegister(ZPOSL_REG,0);
-
-  Zposm zposm ;
-  zposm.raw = 0;
-  //abiSettingsOK = Check_ABI_SetCorrectly(settings1Reg,settings2Reg);
-
-   /*
-   uint16_t zeroValue = 0;// 9341 + 1748; //1175; //+ 500
-   zeroPos = getProgrammedZeroOffset();
-   zeroRegisterUpdated = 0;
-   if (zeroPos != zeroValue){
- 	writeZeroReg(zeroValue); //function must check if it got back the same value it wrote.
- 	zeroRegisterUpdated = 1;
- 	zeroPos = getProgrammedZeroOffset();
- 	//to check if this value is same as what we wrote
-   }
-   */
-
+*/
 
   /* USER CODE END 2 */
 
@@ -207,7 +192,8 @@ int main(void)
 		  settings1.values.uvw_abi = 1; // 0-ABI with W pin as PWM, 1-UVW with I pin as PWM
 		  settings1.values.daecdis = 0;
 		  settings1.values.abibin = 1; // ABI-decimal or binary.
-		  settings1.values.dataselect = 0; //1 is cordic Angle, 0 is dynamic angle compensation. Remove for very slow speeds.
+		  //for low rpm do without DAE, though the PWM interface dowesnt have DAE
+		  settings1.values.dataselect = 1; //1 is cordic Angle, 0 is dynamic angle compensation. Remove for very slow speeds.
 		  settings1.values.pwmon = 1; //sets pwm on.
 
 		  AS5047_writeRegister(SETTINGS1_REG, settings1.raw);
