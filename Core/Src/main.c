@@ -155,21 +155,42 @@ int main(void)
    * value it should be something else, in this case 237
    */
 
-
-  //Get Settings 1 value
-  /*
-  Settings1 settings1;
-  settings1.values.factorySetting = 1;
+  //These are the values that we are going to program permenanently
+  // we write and then read back the values to make sure they are what we think they are
+ /* Settings1 settings1;
+  settings1.values.factorySetting = 0;
   settings1.values.not_used = 0;
   settings1.values.dir = 1;  // By definition A leads B for CW direction. for us seen from the front, rotating in a CW direction gives A leading B.
   settings1.values.uvw_abi = 1; // 0-ABI with W pin as PWM, 1-UVW with I pin as PWM
   settings1.values.daecdis = 0;
   settings1.values.abibin = 1; // ABI-decimal or binary.
+  //for low rpm do without DAE, though the PWM interface dowesnt have DAE
   settings1.values.dataselect = 1; //1 is cordic Angle, 0 is dynamic angle compensation. Remove for very slow speeds.
   settings1.values.pwmon = 1; //sets pwm on.
 
+  settings2.values.abires = 0; //2000 steps per rev, again not used if we use PWM
+  settings2.values.hys = 0; // we re doing > 1600 steps/rev so  0.53. but anyway wont get applied becuase we using only PWM
+  settings2.values.uvwpp = 0; //pole pairs - not used for this application
+  //enable error values
+  zposl.values.zposl = 0;
+  zposl.values.compHerrorEn = 1;
+  zposl.values.compLerrorEn = 1;
+
+  zposm.values.zposm = 0;
+
   AS5047_writeRegister(SETTINGS1_REG, settings1.raw);
+  HAL_Delay(100);
+  AS5047_writeRegister(SETTINGS2_REG, settings2.raw);
+  HAL_Delay(100);
+  AS5047_writeRegister(ZPOSL_REG, zposl.raw);
+  HAL_Delay(100);
+  AS5047_writeRegister(ZPOSM_REG, zposm.raw);
+  HAL_Delay(100);
+
   settings1Reg2.raw = AS5047_readRegister(SETTINGS1_REG,0);
+  settings2Reg.raw = AS5047_readRegister(SETTINGS2_REG,0);
+  zposLRegister.raw = AS5047_readRegister(ZPOSL_REG,0);
+  zposMRegister.raw = AS5047_readRegister(ZPOSM_REG,0);
 */
 
   /* USER CODE END 2 */
@@ -185,27 +206,12 @@ int main(void)
 	  angleMech = angleData*360.0/16384;
 
 	  if (prog_permanently){
-		  Settings1 settings1;
-		  settings1.values.factorySetting = 0;
-		  settings1.values.not_used = 0;
-		  settings1.values.dir = 1;  // By definition A leads B for CW direction. for us seen from the front, rotating in a CW direction gives A leading B.
-		  settings1.values.uvw_abi = 1; // 0-ABI with W pin as PWM, 1-UVW with I pin as PWM
-		  settings1.values.daecdis = 0;
-		  settings1.values.abibin = 1; // ABI-decimal or binary.
-		  //for low rpm do without DAE, though the PWM interface dowesnt have DAE
-		  settings1.values.dataselect = 1; //1 is cordic Angle, 0 is dynamic angle compensation. Remove for very slow speeds.
-		  settings1.values.pwmon = 1; //sets pwm on.
 
-		  AS5047_writeRegister(SETTINGS1_REG, settings1.raw);
-		  HAL_Delay(100);
-
-		  settings1Reg2.raw = AS5047_readRegister(SETTINGS1_REG,0);
 		  breakout = 0;
 		  while(breakout!=1)
 		  {
 			  settings1FactoryBitSet +=1;
 		  }
-
 
 		  progRegister1.values.progen = 1;
 		  AS5047_writeRegister(PROG_REG,progRegister1.raw);
@@ -228,7 +234,7 @@ int main(void)
 				  HAL_Delay(100);
 			  }
 			  //set all registers as 0
-			  settings1.raw = 0;
+			  /*settings1.raw = 0;
 			  AS5047_writeRegister(SETTINGS1_REG, settings1.raw);
 			  settings2.raw = 0;
 			  AS5047_writeRegister(SETTINGS2_REG,settings2.raw);
@@ -236,7 +242,7 @@ int main(void)
 			  AS5047_writeRegister(ZPOSL_REG,zposl.raw);
 			  zposm.raw = 0;
 			  AS5047_writeRegister(ZPOSM_REG,zposm.raw);
-
+*/
 			  progRegister1.values.progen = 0;
 			  progRegister1.values.progotp = 0;
 			  progRegister1.values.progver = 1;
