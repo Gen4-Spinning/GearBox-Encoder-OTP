@@ -48,16 +48,16 @@ PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
 /* USER CODE BEGIN PV */
 Settings1 settings1Reg;
-Settings1 settings1Reg2;
+Settings1 settings1_afterSetting;
 Settings2 settings2Reg;
-Settings2 settings2Reg2;
+Settings2 settings2_afterSetting;
 Errfl errorRegister;
 Prog progRegister;
 Diaagc diagRegister;
 Zposl zposLRegister;
-Zposl zposLRegister2;
+Zposl zposL_afterSetting;
 Zposm zposMRegister;
-
+Zposm zposM_afterSetting;
 Prog progRegister1;
 
 ReadDataFrame readdataframe;
@@ -134,7 +134,6 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   //SET UP ABI mode.
-  //SetupABIwithoutPWM();
   settings1Reg.raw = AS5047_readRegister(SETTINGS1_REG,0);
   settings2Reg.raw = AS5047_readRegister(SETTINGS2_REG,0);
   errorRegister.raw = AS5047_readRegister(ERRFL_REG,0);
@@ -142,9 +141,6 @@ int main(void)
   diagRegister.raw = AS5047_readRegister(DIAGAGC_REG,0);
   zposLRegister.raw = AS5047_readRegister(ZPOSL_REG,0);
   zposMRegister.raw = AS5047_readRegister(ZPOSM_REG,0);
-  Settings2 settings2;
-  Zposl zposl ;
-  Zposm zposm ;
 
   /************INSTRUCTIONS*******************
    * First time you run , see the settings1Reg Value. It will be 32769, and that is
@@ -153,12 +149,28 @@ int main(void)
    * from stage to stage using the breakout variable. Once prog_permanently becomes zero,
    * the OTP is done. Then remove the power and plug it back. when you now see settings1Reg
    * value it should be something else, in this case 237
+   *
+   * If u have code on the nucleo which writes the value into the IC, then by the time u
+   * go into debug mode the value has already been written into the IC and ull
+   * see that in settings1Reg.
+   *
+   */
+
+  Settings1 settings1;
+  Settings2 settings2;
+  Zposl zposl ;
+  Zposm zposm ;
+
+  /* Uncomment below after u confirm the IC has not already been programmed to write the
+   * values through OTP into the IC. After OTP, comment it again to check if the IC
+   * has been programmed. u need to comment, flash the IC, and then remove the power
+   *
    */
 
   //These are the values that we are going to program permenanently
   // we write and then read back the values to make sure they are what we think they are
- /* Settings1 settings1;
-  settings1.values.factorySetting = 0;
+
+  /*settings1.values.factorySetting = 0;
   settings1.values.not_used = 0;
   settings1.values.dir = 1;  // By definition A leads B for CW direction. for us seen from the front, rotating in a CW direction gives A leading B.
   settings1.values.uvw_abi = 1; // 0-ABI with W pin as PWM, 1-UVW with I pin as PWM
@@ -187,10 +199,11 @@ int main(void)
   AS5047_writeRegister(ZPOSM_REG, zposm.raw);
   HAL_Delay(100);
 
-  settings1Reg2.raw = AS5047_readRegister(SETTINGS1_REG,0);
-  settings2Reg.raw = AS5047_readRegister(SETTINGS2_REG,0);
-  zposLRegister.raw = AS5047_readRegister(ZPOSL_REG,0);
-  zposMRegister.raw = AS5047_readRegister(ZPOSM_REG,0);
+  //REad back to make sure thats what uve got
+  settings1_afterSetting.raw = AS5047_readRegister(SETTINGS1_REG,0);
+  settings2_afterSetting.raw = AS5047_readRegister(SETTINGS2_REG,0);
+  zposL_afterSetting.raw = AS5047_readRegister(ZPOSL_REG,0);
+  zposM_afterSetting.raw = AS5047_readRegister(ZPOSM_REG,0);
 */
 
   /* USER CODE END 2 */
@@ -230,11 +243,13 @@ int main(void)
 			  breakout = 0;
 			  while(breakout!=1){
 				  waitingForOTP +=1;
+				  //wait till progOTPgoes back to zero
 				  progRegister.raw = AS5047_readRegister(PROG_REG,0);
 				  HAL_Delay(100);
 			  }
+
 			  //set all registers as 0
-			  /*settings1.raw = 0;
+			  settings1.raw = 0;
 			  AS5047_writeRegister(SETTINGS1_REG, settings1.raw);
 			  settings2.raw = 0;
 			  AS5047_writeRegister(SETTINGS2_REG,settings2.raw);
@@ -242,7 +257,7 @@ int main(void)
 			  AS5047_writeRegister(ZPOSL_REG,zposl.raw);
 			  zposm.raw = 0;
 			  AS5047_writeRegister(ZPOSM_REG,zposm.raw);
-*/
+
 			  progRegister1.values.progen = 0;
 			  progRegister1.values.progotp = 0;
 			  progRegister1.values.progver = 1;
